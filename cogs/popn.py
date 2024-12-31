@@ -105,6 +105,54 @@ class POPNMusicCog(commands.Cog):
         view.add_item(button)
         await interaction.followup.send(embed=embed, view=view)
 
+    @group.command(name="profile", description="プロフィールを確認します。")
+    async def profileCommand(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        row = await Database.pool.fetchrow(
+            "SELECT * FROM konami WHERE id = $1", interaction.user.id
+        )
+        if not row:
+            embed = discord.Embed(
+                title="エラーが発生しました！",
+                description="あなたはまだアカウントをリンクしていません！\n`/maimai link`コマンドを使用してアカウントをリンクしてください！",
+                colour=discord.Colour.red(),
+            )
+            await interaction.followup.send(embed=embed)
+            return
+        client = POPNClient(skipKonami=True)
+        try:
+            await client.loginWithCookie(
+                orjson.loads(cipherSuite.decrypt(row["cookies"].encode()).decode())
+            )
+            profile = await client.fetchProfile()
+        except Exception as e:
+            embed = discord.Embed(
+                title="エラーが発生しました！",
+                description=f"{e}",
+                colour=discord.Colour.red(),
+            )
+            await interaction.followup.send(embed=embed)
+            raise e
+
+        embed = (
+            discord.Embed(
+                title=profile.name,
+                description=f"NORMALモードプレー数: `{profile.normalModePlayCount}`\nBATTLEモードプレー数: `{profile.battleModePlayCount}`\nLOCALモードプレー数: `{profile.localModePlayCount}`\nEXTRAランプレベル: `{profile.extraLampLevel}`",
+                timestamp=profile.lastPlayedAt,
+            )
+            .add_field(
+                name="使用キャラクター",
+                value="・".join(
+                    [character.name for character in profile.usedCharacters]
+                ),
+            )
+            .set_image(
+                url=f"https://otogepictureproxy.onrender.com/{profile.bannerUrl}"
+            )
+            .set_footer(text="maimai ･ 最終プレイ日時")
+        )
+        await interaction.followup.send(embed=embed)
+
     @group.command(name="record", description="プレイ履歴を確認します。")
     async def recordCommand(self, _interaction: discord.Interaction):
         await _interaction.response.defer()

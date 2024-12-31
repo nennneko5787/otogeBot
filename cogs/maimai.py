@@ -86,6 +86,45 @@ class MaimaiCog(commands.Cog):
         )
         await interaction.followup.send(embed=embed, view=view)
 
+    @group.command(name="profile", description="プロフィールを確認します。")
+    async def profileCommand(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        row = await Database.pool.fetchrow(
+            "SELECT * FROM aime WHERE id = $1", interaction.user.id
+        )
+        if not row:
+            embed = discord.Embed(
+                title="エラーが発生しました！",
+                description="あなたはまだアカウントをリンクしていません！\n`/maimai link`コマンドを使用してアカウントをリンクしてください！",
+                colour=discord.Colour.red(),
+            )
+            await interaction.followup.send(embed=embed)
+            return
+        client = MaiMaiClient()
+        try:
+            aimeList = await client.login(
+                self.cipherSuite.decrypt(row["segaid"].encode()).decode(),
+                self.cipherSuite.decrypt(row["password"].encode()).decode(),
+            )
+            aime: MaiMaiAime = aimeList[row["aime"]]
+            await aime.select()
+        except Exception as e:
+            embed = discord.Embed(
+                title="エラーが発生しました！",
+                description=f"{e}",
+                colour=discord.Colour.red(),
+            )
+            await interaction.followup.send(embed=embed)
+            raise e
+
+        embed = (
+            discord.Embed(title=aime.name, description=aime.comment)
+            .set_thumbnail(url=f"https://otogepictureproxy.onrender.com/{aime.iconUrl}")
+            .set_author(name=aime.trophy)
+            .set_footer(text="maimai")
+        )
+        await interaction.followup.send(embed=embed)
+
     def difficultToColor(self, difficult: str):
         match difficult:
             case "BASIC":
@@ -153,8 +192,13 @@ class MaimaiCog(commands.Cog):
                     colour=self.difficultToColor(record.difficult),
                     timestamp=record.playedAt,
                 )
-                .set_author(name=aime.name, icon_url=aime.iconUrl)
-                .set_thumbnail(url=record.jacketUrl)
+                .set_author(
+                    name=aime.name,
+                    icon_url=f"https://otogepictureproxy.onrender.com/{aime.iconUrl}",
+                )
+                .set_thumbnail(
+                    url=f"https://otogepictureproxy.onrender.com/{record.jacketUrl}"
+                )
                 .set_footer(text=record.difficult)
             )
             if edit:
