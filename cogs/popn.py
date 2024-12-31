@@ -134,6 +134,7 @@ class POPNMusicCog(commands.Cog):
             await interaction.followup.send(embed=embed)
             raise e
 
+        print(profile.bannerUrl)
         embed = (
             discord.Embed(
                 title=profile.name,
@@ -149,7 +150,7 @@ class POPNMusicCog(commands.Cog):
             .set_image(
                 url=f"https://otogepictureproxy.onrender.com/?url={profile.bannerUrl}"
             )
-            .set_footer(text="maimai ･ 最終プレイ日時")
+            .set_footer(text="pop'n music ･ 最終プレイ日時")
         )
         await interaction.followup.send(embed=embed)
 
