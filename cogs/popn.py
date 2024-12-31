@@ -147,7 +147,7 @@ class POPNMusicCog(commands.Cog):
                 ),
             )
             .set_image(
-                url=f"https://otogepictureproxy.onrender.com/{profile.bannerUrl}"
+                url=f"https://otogepictureproxy.onrender.com/?url={profile.bannerUrl}"
             )
             .set_footer(text="maimai ･ 最終プレイ日時")
         )
