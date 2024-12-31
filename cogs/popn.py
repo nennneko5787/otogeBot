@@ -147,8 +147,8 @@ class POPNMusicCog(commands.Cog):
                     [character.name for character in profile.usedCharacters]
                 ),
             )
-            .set_image(
-                url=f"https://otogepictureproxy.onrender.com/?url={profile.bannerUrl}"
+            .set_thumbnail(
+                url=f"https://otogepictureproxy.onrender.com/{profile.usedCharacters[0].iconUrl}"
             )
             .set_footer(text="pop'n music ･ 最終プレイ日時")
         )

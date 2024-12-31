@@ -119,9 +119,7 @@ class MaimaiCog(commands.Cog):
 
         embed = (
             discord.Embed(title=aime.name, description=aime.comment)
-            .set_thumbnail(
-                url=f"https://otogepictureproxy.onrender.com/?url={aime.iconUrl}"
-            )
+            .set_thumbnail(url=f"https://otogepictureproxy.onrender.com/{aime.iconUrl}")
             .set_author(name=aime.trophy)
             .set_footer(text="maimai")
         )
@@ -196,10 +194,10 @@ class MaimaiCog(commands.Cog):
                 )
                 .set_author(
                     name=aime.name,
-                    icon_url=f"https://otogepictureproxy.onrender.com/?url={aime.iconUrl}",
+                    icon_url=f"https://otogepictureproxy.onrender.com/{aime.iconUrl}",
                 )
                 .set_thumbnail(
-                    url=f"https://otogepictureproxy.onrender.com/?url={record.jacketUrl}"
+                    url=f"https://otogepictureproxy.onrender.com/{record.jacketUrl}"
                 )
                 .set_footer(text=record.difficult)
             )
