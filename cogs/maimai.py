@@ -118,7 +118,11 @@ class MaimaiCog(commands.Cog):
             raise e
 
         embed = (
-            discord.Embed(title=aime.name, description=aime.comment)
+            discord.Embed(
+                title=aime.name,
+                description=aime.comment,
+                colour=discord.Colour.purple(),
+            )
             .set_thumbnail(url=f"https://otogepictureproxy.onrender.com/{aime.iconUrl}")
             .set_author(name=aime.trophy)
             .set_footer(text="maimai")

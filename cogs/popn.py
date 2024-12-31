@@ -137,9 +137,13 @@ class POPNMusicCog(commands.Cog):
         print(profile.bannerUrl)
         embed = (
             discord.Embed(
-                title=profile.name,
                 description=f"NORMALモードプレー数: `{profile.normalModePlayCount}`\nBATTLEモードプレー数: `{profile.battleModePlayCount}`\nLOCALモードプレー数: `{profile.localModePlayCount}`\nEXTRAランプレベル: `{profile.extraLampLevel}`",
                 timestamp=profile.lastPlayedAt,
+                colour=discord.Colour.purple(),
+            )
+            .set_author(
+                name=profile.name,
+                icon_url=f"https://otogepictureproxy.onrender.com/{profile.usedCharacters[0].iconUrl}",
             )
             .add_field(
                 name="使用キャラクター",
