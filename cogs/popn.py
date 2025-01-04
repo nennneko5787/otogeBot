@@ -62,6 +62,36 @@ class KonamiCodeModal(discord.ui.Modal, title="KONAMI IDログイン"):
         await interaction.followup.send(embed=embed, ephemeral=True)
 
 
+class CookieModal(discord.ui.Modal, title="クッキーログイン"):
+
+    def __init__(self, popn: POPNClient):
+        super().__init__()
+        self.popn = popn
+        self.cookie = discord.ui.TextInput(
+            label="Jam&Fizzのクッキー", style=discord.TextStyle.long
+        )
+        self.add_item(self.cookie)
+
+    async def on_submit(self, interaction: discord.Interaction) -> None:
+        await interaction.response.defer(ephemeral=True)
+        await Database.pool.execute(
+            """
+                INSERT INTO konami (id, cookies)
+                VALUES ($1, $2)
+                ON CONFLICT (id)
+                DO UPDATE SET
+                    cookies = EXCLUDED.cookies
+            """,
+            interaction.user.id,
+            cipherSuite.encrypt(self.cookie.value).decode(),
+        )
+        embed = discord.Embed(
+            title="ログインしました。",
+            colour=discord.Colour.green(),
+        )
+        await interaction.followup.send(embed=embed, ephemeral=True)
+
+
 class POPNMusicCog(commands.Cog):
     """The description for Popn goes here."""
 
@@ -70,7 +100,24 @@ class POPNMusicCog(commands.Cog):
 
     group = app_commands.Group(name="popn", description="pop'n music関連のコマンド。")
 
-    @group.command(name="link", description="pop'n musicのアカウントをリンクします。")
+    @group.command(name="cookiehelp", description="クッキーログインの説明")
+    async def cookieHelpCommand(self, interaction: discord.Interaction):
+        await interaction.response.send_message(
+            '## クッキーログインのやり方\n1. ↓をコピーする```\njavascript:(function(){var cookies=document.cookie.split(/\s*;\s*/).map(function(pair){var parts=pair.split(/\s*=\s*/);return{"name":parts[0],"value":parts.slice(1).join("=")};});var json=JSON.stringify(cookies,null,4);var overlay=document.createElement("div");var textarea=document.createElement("textarea");var closeBtn=document.createElement("button");overlay.style.position="fixed";overlay.style.top="0";overlay.style.left="0";overlay.style.width="100%";overlay.style.height="100%";overlay.style.backgroundColor="rgba(0,0,0,0.8)";overlay.style.zIndex="9999";overlay.style.display="flex";overlay.style.flexDirection="column";overlay.style.alignItems="center";overlay.style.justifyContent="center";textarea.value=json;textarea.style.width="80%";textarea.style.height="50%";textarea.style.marginBottom="10px";textarea.style.fontSize="16px";closeBtn.textContent="閉じる";closeBtn.style.padding="10px 20px";closeBtn.style.fontSize="16px";closeBtn.onclick=function(){document.body.removeChild(overlay);};overlay.appendChild(textarea);overlay.appendChild(closeBtn);document.body.appendChild(overlay);textarea.select();})();\n```\n2. https://p.eagate.573.jp/game/popn/jamfizz/ を開く\n3. さっきの謎の文字列をアドレスバーに打ち込み、アドレスバーの先頭に戻り`javascript:`がなければ`javascript:`を追加する\n4. モーダルが出てくるのでテキストボックスの中身をコピーする\n5. `/popn cookie` コマンドを実行しクッキーの欄にテキストボックスの中身を入力する\nおわり',
+            ephemeral=True,
+        )
+
+    @group.command(
+        name="cookie",
+        description="クッキーを用いてpop'n musicのアカウントをリンクします。",
+    )
+    async def cookieHelpCommand(self, interaction: discord.Interaction):
+        await interaction.response.send_modal(CookieModal())
+
+    @group.command(
+        name="link",
+        description="パスワードを用いてpop'n musicのアカウントをリンクします。現在使用できません。",
+    )
     @app_commands.rename(password="パスワード")
     @app_commands.describe(
         konamiid="リンクしたいユーザーのKONAMI ID。",
@@ -79,8 +126,16 @@ class POPNMusicCog(commands.Cog):
     async def linkCommand(
         self, interaction: discord.Interaction, konamiid: str, password: str
     ):
+        await interaction.response.send_message(
+            discord.Embed(
+                title="このコマンドは現在使用できません。",
+                description="`/popn cookie`コマンドを用いてログインしてください。",
+            ),
+            ephemeral=True,
+        )
+        """
         await interaction.response.defer(ephemeral=True)
-        client = POPNClient(proxyForCaptcha="156.231.136.254:8888")
+        client = POPNClient()
         try:
             await client.loginWithID(konamiid, password)
         except Exception as e:
@@ -104,6 +159,7 @@ class POPNMusicCog(commands.Cog):
         button.callback = openModal
         view.add_item(button)
         await interaction.followup.send(embed=embed, view=view)
+        """
 
     @group.command(name="profile", description="プロフィールを確認します。")
     async def profileCommand(self, interaction: discord.Interaction):
