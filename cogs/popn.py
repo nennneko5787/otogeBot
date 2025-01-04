@@ -64,9 +64,8 @@ class KonamiCodeModal(discord.ui.Modal, title="KONAMI IDログイン"):
 
 class CookieModal(discord.ui.Modal, title="クッキーログイン"):
 
-    def __init__(self, popn: POPNClient):
+    def __init__(self):
         super().__init__()
-        self.popn = popn
         self.cookie = discord.ui.TextInput(
             label="Jam&Fizzのクッキー", style=discord.TextStyle.long
         )
