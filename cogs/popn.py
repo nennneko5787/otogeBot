@@ -82,7 +82,7 @@ class CookieModal(discord.ui.Modal, title="クッキーログイン"):
                     cookies = EXCLUDED.cookies
             """,
             interaction.user.id,
-            cipherSuite.encrypt(self.cookie.value).decode(),
+            cipherSuite.encrypt(self.cookie.value.encode()).decode(),
         )
         embed = discord.Embed(
             title="ログインしました。",
