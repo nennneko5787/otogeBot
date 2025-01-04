@@ -176,7 +176,7 @@ class POPNMusicCog(commands.Cog):
             return
         client = POPNClient(skipKonami=True)
         try:
-            print(cipherSuite.decrypt(row["cookies"].encode()).decode())
+            print(orjson.loads(cipherSuite.decrypt(row["cookies"].encode()).decode()))
             await client.loginWithCookie(
                 orjson.loads(cipherSuite.decrypt(row["cookies"].encode()).decode())
             )
