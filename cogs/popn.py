@@ -80,7 +80,7 @@ class POPNMusicCog(commands.Cog):
         self, interaction: discord.Interaction, konamiid: str, password: str
     ):
         await interaction.response.defer(ephemeral=True)
-        client = POPNClient()
+        client = POPNClient(proxyForCaptcha="156.231.136.254:8888")
         try:
             await client.loginWithID(konamiid, password)
         except Exception as e:

@@ -8,6 +8,8 @@ from discord.ext import commands, tasks
 from fastapi import FastAPI
 from cogs.database import Database
 
+from cogs import image
+
 dotenv.load_dotenv()
 
 discord.utils.setup_logging()
@@ -46,3 +48,4 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(image.router)
