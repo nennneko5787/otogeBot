@@ -1,15 +1,15 @@
-from fastapi import APIRouter, HTTPException
-from otoge import MaiMaiClient
-from otoge.maimai import MaiMaiAime
-from otoge import POPNClient
-from httpx import AsyncClient
-from cryptography.fernet import Fernet
 import os
+
 import dotenv
 import orjson
+from cryptography.fernet import Fernet
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
+from httpx import AsyncClient
+from otoge import MaiMaiClient, POPNClient
+from otoge.maimai import MaiMaiAime
 
-from .database import Database
+from services.database import Database
 
 dotenv.load_dotenv()
 

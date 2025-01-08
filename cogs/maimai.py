@@ -1,13 +1,14 @@
-from discord.ext import commands
+import os
+
 import discord
+import dotenv
+from cryptography.fernet import Fernet
 from discord import app_commands
+from discord.ext import commands
 from otoge import MaiMaiClient
 from otoge.maimai import MaiMaiAime, MaiMaiPlayRecord
-from cryptography.fernet import Fernet
-import os
-import dotenv
 
-from .database import Database
+from services.database import Database
 
 dotenv.load_dotenv()
 
@@ -123,7 +124,9 @@ class MaimaiCog(commands.Cog):
                 description=aime.comment,
                 colour=discord.Colour.purple(),
             )
-            .set_thumbnail(url=f"https://otogepictureproxy.onrender.com/{aime.iconUrl}")
+            .set_thumbnail(
+                url=f"https://beats-api.nennneko5787.net/icon/{interaction.user.id}/maimai"
+            )
             .set_author(name=aime.trophy)
             .set_footer(text="maimai")
         )
@@ -198,10 +201,10 @@ class MaimaiCog(commands.Cog):
                 )
                 .set_author(
                     name=aime.name,
-                    icon_url=f"https://otogepictureproxy.onrender.com/{aime.iconUrl}",
+                    icon_url=f"https://beats-api.nennneko5787.net/icon/{interaction.user.id}/maimai",
                 )
                 .set_thumbnail(
-                    url=f"https://otogepictureproxy.onrender.com/{record.jacketUrl}"
+                    url=record.jacketUrl,
                 )
                 .set_footer(text=record.difficult)
             )

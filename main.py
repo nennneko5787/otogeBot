@@ -6,9 +6,9 @@ import discord
 import dotenv
 from discord.ext import commands, tasks
 from fastapi import FastAPI
-from cogs.database import Database
 
 from cogs import image
+from services.database import Database
 
 dotenv.load_dotenv()
 

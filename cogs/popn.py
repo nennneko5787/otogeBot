@@ -1,14 +1,15 @@
-from discord.ext import commands
-import discord
-from discord import app_commands
-from otoge import POPNClient
-from otoge.popn import POPNPlayRecord
-from cryptography.fernet import Fernet
 import os
+
+import discord
 import dotenv
 import orjson
+from cryptography.fernet import Fernet
+from discord import app_commands
+from discord.ext import commands
+from otoge import POPNClient
+from otoge.popn import POPNPlayRecord
 
-from .database import Database
+from services.database import Database
 
 dotenv.load_dotenv()
 
@@ -146,7 +147,7 @@ class POPNMusicCog(commands.Cog):
             )
             .set_author(
                 name=profile.name,
-                icon_url=f"https://otogepictureproxy.onrender.com/{profile.usedCharacters[0].iconUrl}",
+                icon_url=profile.usedCharacters[0].iconUrl,
             )
             .add_field(
                 name="使用キャラクター",
@@ -155,7 +156,7 @@ class POPNMusicCog(commands.Cog):
                 ),
             )
             .set_thumbnail(
-                url=f"https://otogepictureproxy.onrender.com/{profile.usedCharacters[0].iconUrl}"
+                url=f"https://beats-api.nennneko5787.net/icon/{interaction.user.id}/popn"
             )
             .set_footer(text="pop'n music ･ 最終プレイ日時")
         )
@@ -210,7 +211,10 @@ class POPNMusicCog(commands.Cog):
                 title=record.name,
                 description=f"EASY: `{record.easyScore}`\nNORMAL: `{record.normalScore}`\nHYPER: `{record.hyperScore}`\nEX: `{record.exScore}`",
                 colour=discord.Colour.yellow(),
-            ).set_author(name=profile.name, icon_url=profile.bannerUrl)
+            ).set_author(
+                name=profile.name,
+                icon_url=f"https://beats-api.nennneko5787.net/icon/{interaction.user.id}/popn",
+            )
             if edit:
                 await interaction.edit_original_response(embed=embed, view=view)
             else:
