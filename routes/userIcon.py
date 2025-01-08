@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from httpx import AsyncClient
 from otoge import MaiMaiAime, MaiMaiClient, POPNClient
+from typing import Literal
 
 from services.database import Database
 
@@ -18,7 +19,7 @@ cipherSuite = Fernet(os.getenv("fernet_key").encode())
 
 
 @router.get("/icon/{userId:int}/{game:str}")
-async def fetchUserIcon(userId: int, game: str):
+async def fetchUserIcon(userId: int, game: Literal["maimai", "popn"]):
     """ユーザーのアイコンを取得します。
     なお、アイコンはキャッシュしておくことを推奨します。
     """
@@ -54,6 +55,6 @@ async def fetchUserIcon(userId: int, game: str):
 
             http = AsyncClient(cookies=client.http.cookies, verify=False)
             response = await http.get(profile.bannerUrl)
-            return StreamingResponse(response.aiter_raw())
+            return StreamingResponse(response.aiter_bytes(), media_type="image/png")
         case _:
             raise HTTPException(404)
