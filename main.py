@@ -7,7 +7,7 @@ import dotenv
 from discord.ext import commands, tasks
 from fastapi import FastAPI
 
-from cogs import image
+from routes import userIcon
 from services.database import Database
 
 dotenv.load_dotenv()
@@ -48,4 +48,4 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-app.include_router(image.router)
+app.include_router(userIcon.router)

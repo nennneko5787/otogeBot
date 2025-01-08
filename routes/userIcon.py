@@ -1,12 +1,12 @@
 import os
 
 import dotenv
+import orjson
 from cryptography.fernet import Fernet
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from otoge import MaiMaiAime, MaiMaiClient, POPNClient
 from httpx import AsyncClient
-import orjson
+from otoge import MaiMaiAime, MaiMaiClient, POPNClient
 
 from services.database import Database
 
