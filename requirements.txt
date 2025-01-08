@@ -1,5 +1,5 @@
 git+https://github.com/Rapptz/discord.py.git
-otoge.py
+git+https://github.com/nennneko5787/otoge.py
 asyncpg
 cryptography
 python-dotenv
