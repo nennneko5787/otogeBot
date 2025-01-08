@@ -43,7 +43,7 @@ async def fetchUserIcon(userId: int, game: Literal["maimai", "popn"]):
             return StreamingResponse(response.aiter_bytes(), media_type="image/png")
         case "popn":
             row = await Database.pool.fetchrow(
-                "SELECT * FROM aime WHERE id = $1", userId
+                "SELECT * FROM konami WHERE id = $1", userId
             )
             if not row:
                 raise HTTPException(404)
