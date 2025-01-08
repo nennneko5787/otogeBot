@@ -204,7 +204,7 @@ class MaimaiCog(commands.Cog):
                     icon_url=f"https://beats-api.nennneko5787.net/icon/{interaction.user.id}/maimai",
                 )
                 .set_thumbnail(
-                    url=record.jacketUrl,
+                    url=f"https://beats-api.nennneko5787.net/imageProxy?url={record.jacketUrl}",
                 )
                 .set_footer(text=record.difficult)
             )
