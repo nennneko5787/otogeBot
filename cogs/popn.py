@@ -155,7 +155,7 @@ class POPNMusicCog(commands.Cog):
                     [character.name for character in profile.usedCharacters]
                 ),
             )
-            .set_thumbnail(
+            .set_image(
                 url=f"https://beats-api.nennneko5787.net/icon/{interaction.user.id}/popn"
             )
             .set_footer(text="pop'n music ･ 最終プレイ日時")
@@ -213,7 +213,7 @@ class POPNMusicCog(commands.Cog):
                 colour=discord.Colour.yellow(),
             ).set_author(
                 name=profile.name,
-                icon_url=f"https://beats-api.nennneko5787.net/icon/{interaction.user.id}/popn",
+                icon_url=profile.usedCharacters[0].iconUrl,
             )
             if edit:
                 await interaction.edit_original_response(embed=embed, view=view)
