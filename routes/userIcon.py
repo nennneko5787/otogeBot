@@ -39,7 +39,7 @@ async def fetchUserIcon(userId: int, game: str):
 
             http = AsyncClient(cookies=client.http.cookies, verify=False)
             response = await http.get(aime.iconUrl)
-            return StreamingResponse(response.aiter_raw())
+            return StreamingResponse(response.aiter_bytes(), media_type="image/png")
         case "popn":
             row = await Database.pool.fetchrow(
                 "SELECT * FROM aime WHERE id = $1", userId
