@@ -37,7 +37,7 @@ async def fetchUserIcon(userId: int, game: str):
             aime: MaiMaiAime = aimeList[row["aime"]]
             await aime.select()
 
-            http = AsyncClient(cookies=client.http.cookies)
+            http = AsyncClient(cookies=client.http.cookies, verify=False)
             response = await http.get(aime.iconUrl)
             return StreamingResponse(response.aiter_raw())
         case "popn":
@@ -52,7 +52,7 @@ async def fetchUserIcon(userId: int, game: str):
             )
             profile = await client.fetchProfile()
 
-            http = AsyncClient(cookies=client.http.cookies)
+            http = AsyncClient(cookies=client.http.cookies, verify=False)
             response = await http.get(profile.bannerUrl)
             return StreamingResponse(response.aiter_raw())
         case _:
