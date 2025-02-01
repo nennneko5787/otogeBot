@@ -48,7 +48,7 @@ async def fetchUserIcon(userId: int, game: Literal["maimai", "popn"]):
             if not row:
                 raise HTTPException(404)
             client = POPNClient(skipKonami=True)
-            await client.loginWithCookie(
+            client.loginWithCookie(
                 orjson.loads(cipherSuite.decrypt(row["cookies"].encode()).decode())
             )
             profile = await client.fetchProfile()
