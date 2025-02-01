@@ -228,7 +228,7 @@ class NostalgiaCog(commands.Cog):
                 )
             )
             embed2 = discord.Embed(
-                description=f"PerfectJust: `{record.judge.perfectJust}`\nJust: `{record.judge.just}`\nGood: `{record.judge.good}`\nNear: `{record.judge.near}`\nMiss: `{record.judge.miss}`\nFast: `{record.judge.fast}` / Slow: `{record.judge.slow}`",
+                description=f"PerfectJust: `{record.judges.perfectJust}`\nJust: `{record.judges.just}`\nGood: `{record.judges.good}`\nNear: `{record.judges.near}`\nMiss: `{record.judges.miss}`\nFast: `{record.judges.fast}` / Slow: `{record.judges.slow}`",
                 colour=self.switchColor(record.difficulty),
             ).set_footer(text=f"{record.difficulty.name} {record.level}")
 
