@@ -6,8 +6,7 @@ import orjson
 from cryptography.fernet import Fernet
 from discord import app_commands
 from discord.ext import commands
-from otoge import POPNClient
-from otoge.popn import POPNPlayRecord
+from otoge import PolarisChordClient, PolarisChordPlayRecord, PolarisChordDifficultyType
 
 from services.database import Database
 
@@ -18,7 +17,7 @@ cipherSuite = Fernet(os.getenv("fernet_key").encode())
 
 class KonamiCodeModal(discord.ui.Modal, title="KONAMI IDログイン"):
 
-    def __init__(self, popn: POPNClient):
+    def __init__(self, popn: PolarisChordClient):
         super().__init__()
         self.popn = popn
         self.code = discord.ui.TextInput(
@@ -63,17 +62,19 @@ class KonamiCodeModal(discord.ui.Modal, title="KONAMI IDログイン"):
         await interaction.followup.send(embed=embed, ephemeral=True)
 
 
-class POPNMusicCog(commands.Cog):
+class PolarisChordCog(commands.Cog):
     """The description for Popn goes here."""
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    group = app_commands.Group(name="popn", description="pop'n music関連のコマンド。")
+    group = app_commands.Group(
+        name="polaris", description="ポラリスコード関連のコマンド。"
+    )
 
     @group.command(
         name="link",
-        description="パスワードを用いてKONAMI IDをリンクします。",
+        description="パスワードを用いてKOMANI IDをリンクします。",
     )
     @app_commands.rename(password="パスワード")
     @app_commands.describe(
@@ -84,7 +85,7 @@ class POPNMusicCog(commands.Cog):
         self, interaction: discord.Interaction, konamiid: str, password: str
     ):
         await interaction.response.defer(ephemeral=True)
-        client = POPNClient(proxyForCaptcha="localhost:8118")
+        client = PolarisChordClient(proxyForCaptcha="localhost:8118")
         try:
             await client.loginWithID(konamiid, password)
         except Exception as e:
@@ -123,7 +124,7 @@ class POPNMusicCog(commands.Cog):
             )
             await interaction.followup.send(embed=embed)
             return
-        client = POPNClient(skipKonami=True)
+        client = PolarisChordClient(skipKonami=True)
         try:
             client.loginWithCookie(
                 orjson.loads(cipherSuite.decrypt(row["cookies"].encode()).decode())
@@ -140,26 +141,27 @@ class POPNMusicCog(commands.Cog):
 
         embed = (
             discord.Embed(
-                description=f"NORMALモードプレー数: `{profile.normalModePlayCount}`\nBATTLEモードプレー数: `{profile.battleModePlayCount}`\nLOCALモードプレー数: `{profile.localModePlayCount}`\nEXTRAランプレベル: `{profile.extraLampLevel}`",
-                timestamp=profile.lastPlayedAt,
-                colour=discord.Colour.purple(),
+                description=f"ソロプレー数: `{profile.soloPlayCount}`\nローカルマッチングプレー数: `{profile.localMatchingPlayCount}`\nグローバルマッチングプレイ数: `{profile.globalMatchingPlayCount}`\nPA CLASS: `{profile.paClass}` / PA SKILL: `{profile.paSkill}`",
+                timestamp=profile.lastPlayDate,
+                colour=discord.Colour.pink(),
             )
             .set_author(
                 name=profile.name,
-                icon_url=profile.usedCharacters[0].iconUrl,
             )
-            .add_field(
-                name="使用キャラクター",
-                value="・".join(
-                    [character.name for character in profile.usedCharacters]
-                ),
-            )
-            .set_image(
-                url=f"https://beats-api.nennneko5787.net/icon/{interaction.user.id}/popn"
-            )
-            .set_footer(text="pop'n music ･ 最終プレイ日時")
+            .set_footer(text="ポラリスコード ･ 最終プレイ日時")
         )
         await interaction.followup.send(embed=embed)
+
+    def switchColor(self, type: PolarisChordDifficultyType):
+        match type:
+            case PolarisChordDifficultyType.EASY:
+                return discord.Colour.blue()
+            case PolarisChordDifficultyType.NORMAL:
+                return discord.Colour.green()
+            case PolarisChordDifficultyType.HARD:
+                return discord.Colour.yellow()
+            case _:
+                return discord.Colour.pink()
 
     @group.command(name="record", description="プレイ履歴を確認します。")
     async def recordCommand(self, _interaction: discord.Interaction):
@@ -175,13 +177,13 @@ class POPNMusicCog(commands.Cog):
             )
             await _interaction.followup.send(embed=embed)
             return
-        client = POPNClient(skipKonami=True)
+        client = PolarisChordClient(skipKonami=True)
         try:
             client.loginWithCookie(
                 orjson.loads(cipherSuite.decrypt(row["cookies"].encode()).decode())
             )
             profile = await client.fetchProfile()
-            records = profile.records
+            records = await client.fetchPlayRecords()
         except Exception as e:
             embed = discord.Embed(
                 title="エラーが発生しました！",
@@ -205,19 +207,33 @@ class POPNMusicCog(commands.Cog):
             leftButton.disabled = int(leftButton.custom_id) + 1 + 1 <= 1
             rightButton.disabled = int(rightButton.custom_id) >= len(records)
 
-            record: POPNPlayRecord = records[int(leftButton.custom_id) + 1]
-            embed = discord.Embed(
-                title=record.name,
-                description=f"EASY: `{record.easyScore}`\nNORMAL: `{record.normalScore}`\nHYPER: `{record.hyperScore}`\nEX: `{record.exScore}`",
-                colour=discord.Colour.yellow(),
-            ).set_author(
-                name=profile.name,
-                icon_url=profile.usedCharacters[0].iconUrl,
+            record: PolarisChordPlayRecord = records[int(leftButton.custom_id) + 1]
+            embed = (
+                discord.Embed(
+                    title=f"{record.name} [{record.chartDifficultyType.name}]",
+                    description=f"{record.achievementRate}%\nCLEAR STATUS: `{record.clearStatus.name}`",
+                    colour=self.switchColor(record.chartDifficultyType),
+                    timestamp=record.playedAt,
+                )
+                .set_author(
+                    name=profile.name,
+                )
+                .set_footer(text=record.license)
+                .set_thumbnail(
+                    url=f"https://beats-api.nennneko5787.net/imageProxy?url=https://p.eagate.573.jp/game/polarischord/pc/img/music/jacket.html?c={record.musicId}"
+                )
             )
+            embed2 = discord.Embed(
+                description=f"Perfect: `{record.judges.perfect}`\nGreat: `{record.judges.great}`\nGood: `{record.judges.good}`\nBad: `{record.judges.bad}`\nMiss: `{record.judges.miss}`\nFast: `{record.judges.fast}` / Slow: `{record.judges.slow}`",
+                colour=self.switchColor(record.chartDifficultyType),
+            ).set_footer(text=f"{record.chartDifficultyType.name} {record.difficult}")
+
             if edit:
-                await interaction.edit_original_response(embed=embed, view=view)
+                await interaction.edit_original_response(
+                    embeds=[embed, embed2], view=view
+                )
             else:
-                await interaction.followup.send(embed=embed, view=view)
+                await interaction.followup.send(embeds=[embed, embed2], view=view)
 
         async def left(interaction: discord.Interaction):
             if _interaction.user.id != interaction.user.id:
@@ -259,4 +275,4 @@ class POPNMusicCog(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(POPNMusicCog(bot))
+    await bot.add_cog(PolarisChordCog(bot))

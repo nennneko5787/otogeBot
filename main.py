@@ -35,6 +35,7 @@ async def on_ready():
 async def setup_hook():
     await bot.load_extension("cogs.maimai")
     await bot.load_extension("cogs.popn")
+    await bot.load_extension("cogs.polaris")
     await bot.tree.sync()
 
 
