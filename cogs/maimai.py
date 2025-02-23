@@ -195,7 +195,7 @@ class MaimaiCog(commands.Cog):
             embed = (
                 discord.Embed(
                     title=record.name,
-                    description=f"`{record.percentage} ({record.scoreRank.replace('PLUS', '+')})` {'**NEW RECORD**' if record.percentageIsNewRecord else ''}\nでらっくスコア: `{record.deluxeScore}` {'**NEW RECORD**' if record.deluxeScoreIsNewRecord else ''}\n-# {'クリア' if record.cleared else '未クリア'} \\| {'フルコンボ' if record.fullcombo else '未フルコンボ'} \\| {'SYNC PLAY' if record.sync else 'NO SYNC PLAY'}",
+                    description=f"`{record.percentage} ({record.scoreRank.replace('PLUS', '+')})` {'**NEW RECORD**' if record.percentageIsNewRecord else ''}\nでらっくスコア: `{record.deluxeScore}` {'**NEW RECORD**' if record.deluxeScoreIsNewRecord else ''}\n-# {'クリア' if record.cleared else '未クリア'} \\| {'フルコンボ' if record.fullCombo else '未フルコンボ'} \\| {'SYNC PLAY' if record.sync else 'NO SYNC PLAY'}",
                     colour=self.difficultToColor(record.difficult),
                     timestamp=record.playedAt,
                 )
